@@ -1,5 +1,6 @@
 const express = require("express");
 const fs = require("fs");
+const uuid = require("uuid");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -21,7 +22,8 @@ app.get("/api/notes", (req, res)=>{
     console.log("Getting notes!");
     fs.readFile(__dirname+"/db/db.json", (err, data)=>{
         if(err) throw err;
-        res.send(JSON.parse(data));
+        const notes = JSON.parse(data);
+        res.send(notes);
     })
 });
 
@@ -31,8 +33,25 @@ app.get("*", (req, res)=>{
 
 // Post routes
 app.post("/api/notes", (req, res)=>{
-    // TODO: implement note post
     console.log("Posting a new note!");
+    let note = req.body;
+    note.id = uuid.v4();
+    console.log(note);
+
+    fs.promises.readFile(__dirname+"/db/db.json").then(data=>{
+        const noteArray = JSON.parse(data);
+        noteArray.unshift(note);
+        fs.writeFile(__dirname+"/db/db.json", JSON.stringify(noteArray), (err)=>{
+            if(err){
+                console.error(err);
+                res.send(err);
+            } else {
+                res.send(note);
+            }
+        });
+    }).catch(err=>{
+        console.error(err);
+    })
 })
 
 // Delete routes
@@ -46,14 +65,13 @@ app.delete("/api/notes/:id", (req, res)=>{
         fs.writeFile(__dirname+"/db/db.json", JSON.stringify(newArray), (err)=>{
             if(err){
                 console.error(err);
-                res.status(500).send(err);
             } else {
-                res.status(200).send({"message":`Note ${id} successfully deleted!`});
+                res.send({"message":`Note ${id} successfully deleted!`});
             }
         });
     }).catch(err=>{
         console.error(err);
-        res.status(500).send(err);
+        res.send(err);
     })
 })
 
