@@ -21,7 +21,6 @@ app.get("/api/notes", (req, res)=>{
     console.log("Getting notes!");
     fs.readFile(__dirname+"/db/db.json", (err, data)=>{
         if(err) throw err;
-        console.log(JSON.parse(data));
         res.send(JSON.parse(data));
     })
 });
@@ -39,8 +38,23 @@ app.post("/api/notes", (req, res)=>{
 // Delete routes
 app.delete("/api/notes/:id", (req, res)=>{
     let id = req.params.id;
-    // TODO: implement note deletion
     console.log("Deleting a note with ID: "+id);
+
+    fs.promises.readFile(__dirname+"/db/db.json").then(data=>{
+        const noteArray = JSON.parse(data);
+        const newArray = noteArray.filter(note=>note.id!=id);
+        fs.writeFile(__dirname+"/db/db.json", JSON.stringify(newArray), (err)=>{
+            if(err){
+                console.error(err);
+                res.status(500).send(err);
+            } else {
+                res.status(200).send({"message":`Note ${id} successfully deleted!`});
+            }
+        });
+    }).catch(err=>{
+        console.error(err);
+        res.status(500).send(err);
+    })
 })
 
 // Start Server
