@@ -77,6 +77,36 @@ app.delete("/api/notes/:id", (req, res)=>{
 
 // Start Server
 // ================================================================
-app.listen(PORT, ()=>{
-    console.log("Server listening on: http://localhost:"+PORT);
+
+// Check to make sure database exists, make it if it doesn't
+fs.readFile(__dirname+"/db/db.json", (err, data)=>{
+    if(err) fs.readdir(__dirname+"/db", (err)=>{
+        if(err) fs.promises.mkdir(__dirname+"/db")
+            .then(()=>{
+                return fs.promises.writeFile(__dirname+"/db/db.json", "[]")
+            }).then(()=>{
+                console.log("Database initialized!");
+            })
+            .catch(err=>{
+                console.error("Couldn't initialize database!");
+                console.error(err);
+                process.exit(-5);
+            });
+        else fs.promises.writeFile(__dirname+"/db/db.json", "[]")
+            .then(()=>{
+                console.log("Database initialized!");
+            })
+            .catch(err=>{
+                console.error("Couldn't initialize database!");
+                console.error(err);
+                process.exit(-6);
+            });
+    })
+    else
+        console.log("Database found!");
+    
+    // Start listening
+    app.listen(PORT, ()=>{
+        console.log("Server listening on: http://localhost:"+PORT);
+    })
 })
