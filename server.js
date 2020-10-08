@@ -8,28 +8,34 @@ app.use(express.urlencoded({extended: true}));
 app.use(express.json());
 app.use(express.static(__dirname+"/public"));
 
-// Routes
+// ROUTES
 // ================================================================
 
+// Get routes
 app.get("/notes", (req, res)=>{
     res.sendFile(__dirname+"/public/notes.html");
+});
+
+app.get("/api/notes", (req, res)=>{
+    // TODO: implement note get
+    console.log("Getting notes!");
 });
 
 app.get("*", (req, res)=>{
     res.sendFile(__dirname+"/public/index.html");
 });
 
-app.get("/api/notes", (req, res)=>{
-    // TODO: implement note get
-});
-
+// Post routes
 app.post("/api/notes", (req, res)=>{
     // TODO: implement note post
+    console.log("Posting a new note!");
 })
 
+// Delete routes
 app.delete("/api/notes/:id", (req, res)=>{
     let id = req.params.id;
     // TODO: implement note deletion
+    console.log("Deleting a note with ID: "+id);
 })
 
 // Start Server
